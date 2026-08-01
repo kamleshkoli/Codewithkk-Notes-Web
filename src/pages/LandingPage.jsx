@@ -603,21 +603,31 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           .kkn-root .faq-q{font-size:14px;}
           .kkn-root footer .wrap{flex-direction:column;align-items:flex-start;}
           .kkn-root .fan-wrap{padding:16px 0 8px;perspective:none;}
-          .kkn-root .fan{height:auto;max-width:100%;}
+          .kkn-root .fan{
+            height:auto;max-width:100%;
+            display:flex !important;flex-wrap:nowrap;align-items:stretch;
+            overflow-x:auto;overflow-y:hidden;
+            -webkit-overflow-scrolling:touch;
+            scroll-snap-type:x mandatory;
+            gap:12px;
+            margin:0 -18px;padding:4px 18px 12px;
+            scrollbar-width:none;
+          }
+          .kkn-root .fan::-webkit-scrollbar{display:none;}
           .kkn-root .pdf-card{
             position:static !important;
-            width:100% !important;height:auto !important;min-height:150px;
+            flex:0 0 72vw;width:72vw !important;max-width:250px;
+            height:auto !important;min-height:150px;
             transform:none !important;padding:16px;margin:0;
+            scroll-snap-align:start;
           }
           .kkn-root .pdf-card:hover{transform:none !important;box-shadow:0 20px 40px -14px rgba(0,0,0,0.55) !important;}
-          .kkn-root .fan{display:grid !important;grid-template-columns:repeat(2,1fr);gap:12px;}
           .kkn-root .pdf-card .meta{position:static;margin-top:16px;border-top:1px solid var(--border);padding-top:10px;}
           .kkn-root .pdf-card .tag{margin-bottom:10px;}
           .kkn-root .pdf-card .ttl{font-size:13px;}
         }
         @media (max-width:420px){
-          .kkn-root .fan{grid-template-columns:1fr 1fr;gap:10px;}
-          .kkn-root .pdf-card{padding:14px;min-height:130px;}
+          .kkn-root .pdf-card{flex-basis:74vw;width:74vw !important;padding:14px;min-height:130px;}
           .kkn-root .pdf-card .ttl{font-size:12.5px;}
           .kkn-root .pdf-card .glyph{width:18px;height:18px;font-size:8px;top:12px;right:12px;}
         }
