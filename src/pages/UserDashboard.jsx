@@ -32,11 +32,16 @@ export default function UserDashboard({ user, onBack }) {
     loadData();
   }, [user]);
 
+  const resolveAsset = (url) =>
+    url && !url.startsWith("http")
+      ? `${import.meta.env.VITE_API_BASE_URL || ""}${url}`
+      : url;
+
   const loadData = async () => {
     setLoading(true);
     try {
       const notesRes = await getAllNotes();
-      setNotes(notesRes.data || []);
+      setNotes((notesRes.data || []).map((n) => ({ ...n, thumbnailUrl: resolveAsset(n.thumbnailUrl), pdfUrl: resolveAsset(n.pdfUrl) })));
       if (user.userId) {
         const checkRes = await checkPurchase(user.userId);
         setHasPurchased(checkRes.data);

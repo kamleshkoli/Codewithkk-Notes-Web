@@ -91,13 +91,17 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   }, [user]);
 
   const isLoggedIn = !!user.token;
+  const resolveAsset = (url) =>
+    url && !url.startsWith("http")
+      ? `${import.meta.env.VITE_API_BASE_URL || ""}${url}`
+      : url;
+
   const displayCards = notes.length > 0
     ? notes.filter((n) => n.active).map((n, i) => ({
         tag: n.title,
         ttl: n.description,
         pages: n.pdfUrl ? "PDF Available" : "Coming soon",
-        v: n.price > 0 ? `₹${n.price}` : "Free",
-        thumbnailUrl: n.thumbnailUrl,
+        thumbnailUrl: resolveAsset(n.thumbnailUrl),
       }))
     : [];
 
@@ -403,16 +407,21 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s;
           box-shadow:0 20px 40px -14px rgba(0,0,0,0.55);
           opacity:0;
+          display:flex;flex-direction:column;
         }
         .kkn-root .pdf-card.show{opacity:1;}
         .kkn-root .pdf-card:hover{box-shadow:0 30px 60px -12px rgba(232,196,104,0.18);z-index:10 !important;}
         .kkn-root .pdf-card .tag{
           font-family:var(--font-mono);font-size:10px;color:var(--accent);
-          letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;
+          letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
-        .kkn-root .pdf-card .ttl{font-family:var(--font-mono);font-weight:700;font-size:14.5px;line-height:1.35;color:var(--text);}
+        .kkn-root .pdf-card .ttl{
+          font-family:var(--font-mono);font-weight:700;font-size:14.5px;line-height:1.35;color:var(--text);
+          display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+        }
         .kkn-root .pdf-card .meta{
-          position:absolute;bottom:16px;left:18px;right:18px;
+          margin-top:auto;
           display:flex;justify-content:space-between;
           font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim);
           border-top:1px solid var(--border);padding-top:10px;
@@ -425,7 +434,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         }
         .kkn-root .pdf-card .card-thumb{
           margin-bottom:10px;border-radius:8px;overflow:hidden;
-          background:var(--surface-2);aspect-ratio:1.4;
+          background:var(--surface-2);aspect-ratio:1.4;flex-shrink:0;
         }
         .kkn-root .pdf-card .card-thumb img{
           width:100%;height:100%;object-fit:cover;display:block;
@@ -688,7 +697,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                     <div className="nttl">{note.title}</div>
                     <div className="ndesc">{note.description}</div>
                     {note.pdfUrl ? (
-                      <a className="nlink" href={note.pdfUrl} target="_blank" rel="noopener noreferrer">
+                      <a className="nlink" href={resolveAsset(note.pdfUrl)} target="_blank" rel="noopener noreferrer">
                         Download PDF →
                       </a>
                     ) : (
@@ -779,7 +788,6 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                       <div className="ttl">{card ? card.ttl : "Fetching notes"}</div>
                       <div className="meta">
                         <span>{card ? card.pages : ""}</span>
-                        <span>{card ? card.v : ""}</span>
                       </div>
                     </div>
                   ))}
