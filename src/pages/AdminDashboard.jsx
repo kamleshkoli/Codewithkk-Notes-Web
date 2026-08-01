@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getStats, getAllUsers, updateUser, deleteUser, getAllPayments, adminCreateNote, adminUpdateNote, adminDeleteNote } from "../api/admin";
 import { getAllNotes } from "../api/notes";
 import { uploadPdf, uploadImage } from "../api/upload";
-import { downloadPdf } from "../utils/download";
+import { downloadNote } from "../utils/download";
 
 const styles = {
   root: {
@@ -271,7 +271,7 @@ export default function AdminDashboard({ user, onLogout }) {
                     <span style={{ fontSize: 10, color: "#A9BBAF" }}>{n.pdfUrl.split("/").pop()}</span>
                     <div>
                       <a href={resolveAsset(n.pdfUrl)} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468", fontSize: 11, textDecoration: "none" }}>View →</a>
-                      <button onClick={() => downloadPdf(resolveAsset(n.pdfUrl), `${n.title || "notes"}.pdf`)} style={{ color: "#E8C468", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 10 }}>Download</button>
+                      <button onClick={() => downloadNote(n)} style={{ color: "#E8C468", fontSize: 11, background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: 10 }}>Download</button>
                     </div>
                   </div>
                 ) : <span style={{ color: "#A9BBAF", fontSize: 11 }}>No file</span>}

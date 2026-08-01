@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { getAllNotes } from "../api/notes";
 import { checkPurchase, getPurchaseByUserId, checkMyPurchase } from "../api/bundle";
 import { createOrder, verifyPayment } from "../api/payment";
-import { downloadPdf } from "../utils/download";
+import { downloadNote } from "../utils/download";
 
 function loadRazorpay(src) {
   return new Promise((resolve) => {
@@ -212,7 +212,7 @@ export default function UserDashboard({ user, onBack }) {
                     color: "#A9BBAF", fontSize: 13, lineHeight: 1.5, marginBottom: 12
                   }}>{note.description}</div>
                   {hasPurchased && note.pdfUrl ? (
-                    <button onClick={() => downloadPdf(note.pdfUrl, `${note.title || "notes"}.pdf`)}
+                    <button onClick={() => downloadNote(note)}
                       style={{
                         fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
                         color: "#E8C468", background: "transparent", border: "none",

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { register, login } from "../api/auth";
 import { getAllNotes } from "../api/notes";
 import { checkMyPurchase } from "../api/bundle";
-import { downloadPdf } from "../utils/download";
+import { downloadNote } from "../utils/download";
 
 const STEPS = [
   { num: "01", title: "Pay ₹39", body: "Secure one-time checkout. No account needed to start." },
@@ -862,7 +862,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                   <div className="nttl">{note.title}</div>
                   <div className="ndesc">{note.description}</div>
                   {note.pdfUrl ? (
-                    <button className="nlink" onClick={() => downloadPdf(note.pdfUrl, `${note.title || "notes"}.pdf`)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                    <button className="nlink" onClick={() => downloadNote(note)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                       Download PDF →
                     </button>
                   ) : (
