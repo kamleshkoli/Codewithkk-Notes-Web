@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { register, login } from "../api/auth";
 import { getAllNotes } from "../api/notes";
-import { getPurchaseByUserId, checkPurchase } from "../api/bundle";
+import { checkMyPurchase } from "../api/bundle";
+import { downloadPdf } from "../utils/download";
 
 const STEPS = [
   { num: "01", title: "Pay ₹39", body: "Secure one-time checkout. No account needed to start." },
@@ -69,7 +70,6 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   const [authMsg, setAuthMsg] = useState("");
 
   const [purchaseStatus, setPurchaseStatus] = useState(null);
-  const [showDashboard, setShowDashboard] = useState(false);
 
   const termRef = useRef(null);
   const fanRef = useRef(null);
@@ -83,10 +83,12 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   }, []);
 
   useEffect(() => {
-    if (user.token && user.email) {
-      checkPurchase(user.email)
-        .then((res) => setPurchaseStatus(res.data))
-        .catch(() => {});
+    if (user.token) {
+      checkMyPurchase()
+        .then((res) => setPurchaseStatus(res.data?.purchased === true))
+        .catch(() => setPurchaseStatus(null));
+    } else {
+      setPurchaseStatus(null);
     }
   }, [user]);
 
@@ -210,7 +212,6 @@ export default function LandingPage({ user, setUser, onNavigate }) {
     localStorage.removeItem("userId");
     setUser({ email: null, token: null, role: null, userId: null });
     setPurchaseStatus(null);
-    setShowDashboard(false);
   };
 
   const switchAuthMode = () => {
@@ -688,35 +689,37 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         </div>
       </nav>
 
-      {showDashboard && isLoggedIn ? (
+      {isLoggedIn && purchaseStatus ? (
         <section className="section kkn-dashboard">
           <div className="wrap">
-            <div className="section-eyebrow">Dashboard</div>
-            <div className="section-title">
-              {purchaseStatus ? "Your Notes Library" : "Waiting for purchase"}
-            </div>
+            <div className="section-eyebrow">Your Library</div>
+            <div className="section-title">All your notes, unlocked.</div>
             <p className="section-sub">
-              {purchaseStatus
-                ? "Download any PDF from your bundle — new ones appear automatically."
-                : "Purchase the bundle to unlock your dashboard."}
+              Download any PDF from your bundle — new ones appear automatically.
             </p>
-            {purchaseStatus && Array.isArray(notes) && notes.length > 0 && (
-              <div className="grid">
-                {notes.filter((n) => n.active).map((note) => (
-                  <div className="note-card" key={note.id}>
-                    <div className="nttl">{note.title}</div>
-                    <div className="ndesc">{note.description}</div>
-                    {note.pdfUrl ? (
-                      <a className="nlink" href={resolveAsset(note.pdfUrl)} target="_blank" rel="noopener noreferrer">
-                        Download PDF →
-                      </a>
-                    ) : (
-                      <span style={{ color: "var(--text-dim)", fontSize: 12 }}>Coming soon</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="grid">
+              {notes.filter((n) => n.active).map((note) => (
+                <div className="note-card" key={note.id}>
+                  {note.thumbnailUrl && (
+                    <div style={{ marginBottom: 10, borderRadius: 8, overflow: "hidden", aspectRatio: "1.4", background: "var(--surface-2)" }}>
+                      <img src={note.thumbnailUrl} alt={note.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    </div>
+                  )}
+                  <div className="nttl">{note.title}</div>
+                  <div className="ndesc">{note.description}</div>
+                  {note.pdfUrl ? (
+                    <button className="nlink" onClick={() => downloadPdf(note.pdfUrl, `${note.title || "notes"}.pdf`)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                      Download PDF →
+                    </button>
+                  ) : (
+                    <span style={{ color: "var(--text-dim)", fontSize: 12 }}>Coming soon</span>
+                  )}
+                </div>
+              ))}
+              {notes.length === 0 && (
+                <div style={{ color: "var(--text-dim)", fontSize: 14 }}>No notes available yet.</div>
+              )}
+            </div>
           </div>
         </section>
       ) : (
