@@ -77,7 +77,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
 
   useEffect(() => {
     getAllNotes()
-      .then((res) => setNotes(res.data))
+      .then((res) => setNotes(Array.isArray(res.data) ? res.data : []))
       .catch(() => {})
       .finally(() => setNotesLoading(false));
   }, []);
@@ -96,7 +96,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
       ? `${import.meta.env.VITE_API_BASE_URL || ""}${url}`
       : url;
 
-  const displayCards = notes.length > 0
+  const displayCards = Array.isArray(notes) && notes.length > 0
     ? notes.filter((n) => n.active).map((n, i) => ({
         tag: n.title,
         ttl: n.description,
@@ -690,7 +690,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                 ? "Download any PDF from your bundle — new ones appear automatically."
                 : "Purchase the bundle to unlock your dashboard."}
             </p>
-            {purchaseStatus && notes.length > 0 && (
+            {purchaseStatus && Array.isArray(notes) && notes.length > 0 && (
               <div className="grid">
                 {notes.filter((n) => n.active).map((note) => (
                   <div className="note-card" key={note.id}>
@@ -739,7 +739,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                 <div className="term-body">
                   <div className="term-line show"><span className="prompt">$</span> ./unlock-bundle --plan=premium</div>
                   <div className={`term-line ${lineVisible[0] ? "show" : ""}`}>
-                    → scanning archive<span className="hl">... {notesLoading ? "scanning..." : `${notes.length} PDFs found`}</span>
+                    → scanning archive<span className="hl">... {notesLoading ? "scanning..." : `${Array.isArray(notes) ? notes.length : 0} PDFs found`}</span>
                   </div>
                   <div className={`term-line ${lineVisible[1] ? "show" : ""}`}>
                     → topics: <span className="hl">Java, Spring Boot, DSA, SQL, REST APIs</span>
@@ -758,7 +758,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           <section className="section" id="bundle">
             <div className="wrap">
               <Reveal className="section-head">
-                <div className="section-eyebrow">What's inside / {notes.length} PDFs</div>
+                <div className="section-eyebrow">What's inside / {Array.isArray(notes) ? notes.length : 0} PDFs</div>
                 <div className="section-title">Notes that are actually current.</div>
                 <p className="section-sub">
                   Every PDF is written and formatted for real interview prep — not filler.

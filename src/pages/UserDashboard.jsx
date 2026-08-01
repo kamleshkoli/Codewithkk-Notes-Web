@@ -41,7 +41,7 @@ export default function UserDashboard({ user, onBack }) {
     setLoading(true);
     try {
       const notesRes = await getAllNotes();
-      setNotes((notesRes.data || []).map((n) => ({ ...n, thumbnailUrl: resolveAsset(n.thumbnailUrl), pdfUrl: resolveAsset(n.pdfUrl) })));
+      setNotes((Array.isArray(notesRes.data) ? notesRes.data : []).map((n) => ({ ...n, thumbnailUrl: resolveAsset(n.thumbnailUrl), pdfUrl: resolveAsset(n.pdfUrl) })));
       if (user.userId) {
         const checkRes = await checkPurchase(user.userId);
         setHasPurchased(checkRes.data);
@@ -105,7 +105,7 @@ export default function UserDashboard({ user, onBack }) {
     setPaying(false);
   };
 
-  const activeNotes = notes.filter((n) => n.active);
+  const activeNotes = Array.isArray(notes) ? notes.filter((n) => n.active) : [];
 
   return (
     <div style={{ background: "#16261F", color: "#F3F1E7", fontFamily: "Inter, sans-serif", minHeight: "100vh" }}>
