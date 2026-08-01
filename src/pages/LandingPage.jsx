@@ -70,6 +70,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   const [authMsg, setAuthMsg] = useState("");
 
   const [purchaseStatus, setPurchaseStatus] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const termRef = useRef(null);
   const fanRef = useRef(null);
@@ -93,6 +94,9 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   }, [user]);
 
   const isLoggedIn = !!user.token;
+  const firstName = user.email ? user.email.split("@")[0] : "";
+  const avatarInitial = (firstName[0] || "?").toUpperCase();
+  const closeMenu = () => setMobileMenuOpen(false);
   const resolveAsset = (url) =>
     url && !url.startsWith("http")
       ? `${import.meta.env.VITE_API_BASE_URL || ""}${url}`
@@ -159,6 +163,22 @@ export default function LandingPage({ user, setUser, onNavigate }) {
     return () => obs.disconnect();
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width:768px)");
+    const onChange = (e) => {
+      if (e.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    const onKey = (e) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      mq.removeEventListener("change", onChange);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
   const scrollToBuy = useCallback(() => {
     buyRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -212,6 +232,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
     localStorage.removeItem("userId");
     setUser({ email: null, token: null, role: null, userId: null });
     setPurchaseStatus(null);
+    setMobileMenuOpen(false);
   };
 
   const switchAuthMode = () => {
@@ -635,6 +656,93 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         @media (max-width:380px){
           .kkn-root .term-body{font-size:10.5px;}
         }
+        .kkn-root .nav-mobile{display:none;align-items:center;gap:10px;flex-shrink:0;}
+        .kkn-root .hamburger{
+          display:none;flex-direction:column;align-items:center;justify-content:center;
+          gap:4px;width:40px;height:40px;flex-shrink:0;
+          background:transparent;border:1px solid var(--border);border-radius:9px;
+          cursor:pointer;padding:0;
+        }
+        .kkn-root .hamburger span{
+          display:block;width:18px;height:2px;border-radius:2px;background:var(--text);
+          transition:transform .25s ease, opacity .25s ease;
+        }
+        .kkn-root .hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+        .kkn-root .hamburger.open span:nth-child(2){opacity:0;}
+        .kkn-root .hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+        .kkn-root .nav-avatar{
+          display:none;align-items:center;justify-content:center;
+          width:36px;height:36px;border-radius:50%;flex-shrink:0;
+          background:var(--accent);color:var(--on-accent);
+          font-family:var(--font-mono);font-weight:700;font-size:15px;
+          border:none;cursor:pointer;box-shadow:0 0 0 2px var(--border);
+        }
+        .kkn-drawer-backdrop{
+          position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:110;
+          opacity:0;pointer-events:none;transition:opacity .3s ease;backdrop-filter:blur(2px);
+        }
+        .kkn-drawer-backdrop.open{opacity:1;pointer-events:auto;}
+        .kkn-drawer{
+          position:fixed;top:0;right:0;bottom:0;width:min(320px,86vw);
+          background:var(--surface);border-left:1px solid var(--border);
+          z-index:120;padding:20px 16px 24px;overflow-y:auto;
+          transform:translateX(102%);
+          transition:transform .3s cubic-bezier(.2,.8,.2,1);
+          display:flex;flex-direction:column;
+        }
+        .kkn-drawer.open{transform:translateX(0);}
+        .kkn-drawer .drawer-close{
+          align-self:flex-end;width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+          background:transparent;border:1px solid var(--border);border-radius:9px;
+          color:var(--text-dim);font-size:15px;cursor:pointer;margin-bottom:10px;
+        }
+        .kkn-drawer .drawer-close:hover{color:var(--text);border-color:var(--accent-dim);}
+        .kkn-drawer .drawer-user{
+          display:flex;align-items:center;gap:12px;
+          padding:6px 8px 16px;margin-bottom:8px;border-bottom:1px solid var(--border);
+        }
+        .kkn-drawer .avatar-lg{
+          width:44px;height:44px;border-radius:50%;flex-shrink:0;
+          background:var(--accent);color:var(--on-accent);
+          display:flex;align-items:center;justify-content:center;
+          font-family:var(--font-mono);font-weight:700;font-size:18px;
+        }
+        .kkn-drawer .drawer-meta{min-width:0;flex:1;}
+        .kkn-drawer .drawer-name{
+          font-family:var(--font-mono);font-weight:700;font-size:15px;color:var(--text);
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
+        .kkn-drawer .drawer-email{
+          font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim);
+          margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
+        .kkn-drawer .drawer-links{display:flex;flex-direction:column;gap:2px;}
+        .kkn-drawer .drawer-links a,
+        .kkn-drawer .drawer-links button{
+          display:flex;align-items:center;width:100%;
+          padding:14px 12px;border-radius:10px;
+          font-family:var(--font-mono);font-size:14px;color:var(--text);
+          text-decoration:none;background:none;border:none;cursor:pointer;text-align:left;
+          transition:background .2s, color .2s;
+        }
+        .kkn-drawer .drawer-links a:hover,
+        .kkn-drawer .drawer-links button:hover{background:var(--surface-2);color:var(--accent);}
+        .kkn-drawer .drawer-links button.cta{
+          margin-top:10px;background:var(--accent);color:var(--on-accent);
+          font-weight:700;justify-content:center;
+        }
+        .kkn-drawer .drawer-links button.logout{color:#ff6b61;}
+        .kkn-drawer .drawer-links button.logout:hover{background:rgba(255,95,86,0.12);color:#ff5f56;}
+        @media (min-width:768px){
+          .kkn-root .nav-mobile{display:none !important;}
+          .kkn-drawer,.kkn-drawer-backdrop{display:none !important;}
+        }
+        @media (max-width:767px){
+          .kkn-root .navlinks{display:none;}
+          .kkn-root .nav-mobile{display:flex;}
+          .kkn-root .hamburger{display:flex;}
+          .kkn-root .nav-avatar{display:flex;}
+        }
         .kkn-root .term-body .prompt{color:var(--accent);}
         .kkn-root .term-line{color:var(--text-dim);opacity:0;transition:opacity .3s;}
         .kkn-root .term-line.show{opacity:1;}
@@ -681,6 +789,21 @@ export default function LandingPage({ user, setUser, onNavigate }) {
               </>
             )}
           </div>
+          <div className="nav-mobile">
+            {isLoggedIn && (
+              <button className="nav-avatar" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
+                {avatarInitial}
+              </button>
+            )}
+            <button
+              className={`hamburger ${mobileMenuOpen ? "open" : ""}`}
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span></span><span></span><span></span>
+            </button>
+          </div>
           {!isLoggedIn && (
             <button className="nav-cta" onClick={scrollToBuy} style={{ display: "none" }}>
               Get Access — ₹39
@@ -688,6 +811,37 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           )}
         </div>
       </nav>
+
+      <div className={`kkn-drawer-backdrop ${mobileMenuOpen ? "open" : ""}`} onClick={closeMenu} />
+      <div className={`kkn-drawer ${mobileMenuOpen ? "open" : ""}`} role="dialog" aria-label="Menu">
+        <button className="drawer-close" onClick={closeMenu} aria-label="Close menu">✕</button>
+        {isLoggedIn && (
+          <div className="drawer-user">
+            <span className="avatar-lg">{avatarInitial}</span>
+            <div className="drawer-meta">
+              <div className="drawer-name">{firstName || "Account"}</div>
+              {user.email && <div className="drawer-email">{user.email}</div>}
+            </div>
+          </div>
+        )}
+        <div className="drawer-links">
+          <a href="#bundle" onClick={closeMenu}>Bundle</a>
+          <a href="#how" onClick={closeMenu}>How it Works</a>
+          <a href="#faq" onClick={closeMenu}>FAQ</a>
+          {isLoggedIn ? (
+            <>
+              <button onClick={() => { closeMenu(); onNavigate("dashboard"); }}>My Notes</button>
+              <button onClick={() => { closeMenu(); onNavigate("profile"); }}>Profile</button>
+              <button className="logout" onClick={() => { closeMenu(); handleLogout(); }}>Logout</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => { closeMenu(); openAuthModal("login"); }}>Login</button>
+              <button className="cta" onClick={() => { closeMenu(); openAuthModal("register"); }}>Sign Up</button>
+            </>
+          )}
+        </div>
+      </div>
 
       {isLoggedIn && purchaseStatus ? (
         <section className="section kkn-dashboard">
