@@ -77,7 +77,7 @@ export default function UserDashboard({ user, onBack }) {
         order_id: orderId,
         handler: async function (response) {
           try {
-            await verifyPayment({
+            const verified = await verifyPayment({
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
@@ -86,6 +86,7 @@ export default function UserDashboard({ user, onBack }) {
             });
             alert("Payment successful! You now have lifetime access.");
             setHasPurchased(true);
+            setPurchaseInfo(verified.data);
             loadData();
           } catch {
             alert("Payment verification failed. Contact support.");

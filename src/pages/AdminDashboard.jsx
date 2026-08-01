@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getStats, getAllUsers, updateUser, deleteUser, getAllPayments, adminCreateNote, adminUpdateNote, adminDeleteNote } from "../api/admin";
 import { getAllNotes } from "../api/notes";
 import { uploadPdf, uploadImage } from "../api/upload";
@@ -78,6 +79,7 @@ const resolveAsset = (url) =>
     : url;
 
 export default function AdminDashboard({ user, onLogout }) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState("stats");
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
@@ -359,7 +361,10 @@ export default function AdminDashboard({ user, onLogout }) {
       <div style={styles.wrap}>
         <div style={styles.header}>
           <div><span style={styles.title}>Admin Panel</span><div style={styles.badge}>{user.email}</div></div>
-          <button style={styles.logoutBtn} onClick={onLogout}>Logout</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button style={styles.logoutBtn} onClick={() => navigate("/")}>Home</button>
+            <button style={styles.logoutBtn} onClick={onLogout}>Logout</button>
+          </div>
         </div>
         <div style={styles.tabs}>
           {["stats", "users", "notes", "payments"].map(t => (
