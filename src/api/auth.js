@@ -12,3 +12,6 @@ export const login = (data) =>
     email: data.email,
     password: data.password,
   });
+
+export const getMe = () =>
+  client.get("/api/user/me");

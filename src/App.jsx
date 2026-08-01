@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import { getMe } from "./api/auth";
 import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -18,6 +19,20 @@ function getUserFromStorage() {
 export default function App() {
   const navigate = useNavigate();
   const [user, setUser] = useState(getUserFromStorage);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    getMe()
+      .then((res) => {
+        const me = res.data;
+        localStorage.setItem("userId", me.id);
+        localStorage.setItem("email", me.email);
+        localStorage.setItem("role", me.role);
+        setUser({ token, email: me.email, role: me.role, userId: me.id });
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");

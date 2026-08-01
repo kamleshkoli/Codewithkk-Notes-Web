@@ -15,3 +15,6 @@ export const getPurchaseByUserId = (userId) =>
 
 export const checkPurchase = (userId) =>
   client.get(`/api/bundle/check/${userId}`);
+
+export const checkMyPurchase = () =>
+  client.get("/api/bundle/me");

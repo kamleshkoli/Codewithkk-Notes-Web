@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { getAllNotes } from "../api/notes";
-import { checkPurchase, getPurchaseByUserId } from "../api/bundle";
+import { checkPurchase, getPurchaseByUserId, checkMyPurchase } from "../api/bundle";
 import { createOrder, verifyPayment } from "../api/payment";
 import { downloadPdf } from "../utils/download";
 
@@ -51,6 +51,11 @@ export default function UserDashboard({ user, onBack }) {
           const purchRes = await getPurchaseByUserId(user.userId);
           setPurchaseInfo(purchRes.data);
         }
+      }
+      if (user.token) {
+        const meRes = await checkMyPurchase();
+        setHasPurchased((meRes.data?.purchased === true) || purchasedRef.current);
+        if (meRes.data?.purchase) setPurchaseInfo(meRes.data.purchase);
       }
     } catch {}
     setLoading(false);
