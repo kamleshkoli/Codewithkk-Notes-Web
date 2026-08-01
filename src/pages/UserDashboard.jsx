@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAllNotes } from "../api/notes";
 import { checkPurchase, getPurchaseByUserId } from "../api/bundle";
 import { createOrder, verifyPayment } from "../api/payment";
@@ -28,6 +28,7 @@ export default function UserDashboard({ user, onBack }) {
   const [purchaseInfo, setPurchaseInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const purchasedRef = useRef(false);
 
   useEffect(() => {
     loadData();
@@ -45,7 +46,7 @@ export default function UserDashboard({ user, onBack }) {
       setNotes((Array.isArray(notesRes.data) ? notesRes.data : []).map((n) => ({ ...n, thumbnailUrl: resolveAsset(n.thumbnailUrl), pdfUrl: resolveAsset(n.pdfUrl) })));
       if (user.userId) {
         const checkRes = await checkPurchase(user.userId);
-        setHasPurchased(checkRes.data);
+        setHasPurchased(checkRes.data || purchasedRef.current);
         if (checkRes.data) {
           const purchRes = await getPurchaseByUserId(user.userId);
           setPurchaseInfo(purchRes.data);
@@ -85,6 +86,7 @@ export default function UserDashboard({ user, onBack }) {
               amount: 39,
             });
             alert("Payment successful! You now have lifetime access.");
+            purchasedRef.current = true;
             setHasPurchased(true);
             setPurchaseInfo(verified.data);
             loadData();
