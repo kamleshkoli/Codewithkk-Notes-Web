@@ -71,6 +71,11 @@ const styles = {
   }
 };
 
+const resolveAsset = (url) =>
+  url && !url.startsWith("http")
+    ? `${import.meta.env.VITE_API_BASE_URL || ""}${url}`
+    : url;
+
 export default function AdminDashboard({ user, onLogout }) {
   const [tab, setTab] = useState("stats");
   const [stats, setStats] = useState(null);
@@ -248,7 +253,7 @@ export default function AdminDashboard({ user, onLogout }) {
               <td style={styles.td}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {n.thumbnailUrl && (
-                    <img src={n.thumbnailUrl} alt="" style={{ width: 32, height: 22, borderRadius: 4, objectFit: "cover", background: "#14261E" }} />
+                    <img src={resolveAsset(n.thumbnailUrl)} alt="" style={{ width: 32, height: 22, borderRadius: 4, objectFit: "cover", background: "#14261E" }} />
                   )}
                   <div>
                     <div>{n.title}</div>
@@ -261,7 +266,7 @@ export default function AdminDashboard({ user, onLogout }) {
                 {n.pdfUrl ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                     <span style={{ fontSize: 10, color: "#A9BBAF" }}>{n.pdfUrl.split("/").pop()}</span>
-                    <a href={n.pdfUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468", fontSize: 11, textDecoration: "none" }}>View PDF →</a>
+                    <a href={resolveAsset(n.pdfUrl)} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468", fontSize: 11, textDecoration: "none" }}>View PDF →</a>
                   </div>
                 ) : <span style={{ color: "#A9BBAF", fontSize: 11 }}>No file</span>}
               </td>
@@ -288,7 +293,7 @@ export default function AdminDashboard({ user, onLogout }) {
               onChange={(e) => setPdfFile(e.target.files[0])} />
             {noteForm.pdfUrl && !pdfFile && (
               <div style={{ fontSize: 11, color: "#A9BBAF", marginBottom: 12 }}>
-                Current PDF: <a href={noteForm.pdfUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468" }}>view file</a>
+                Current PDF: <a href={resolveAsset(noteForm.pdfUrl)} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468" }}>view file</a>
                 {editingNote && <span> (select a new file to replace)</span>}
               </div>
             )}
@@ -297,7 +302,7 @@ export default function AdminDashboard({ user, onLogout }) {
               onChange={(e) => setThumbnailFile(e.target.files[0])} />
             {noteForm.thumbnailUrl && !thumbnailFile && (
               <div style={{ fontSize: 11, color: "#A9BBAF", marginBottom: 12 }}>
-                Current: <a href={noteForm.thumbnailUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468" }}>view image</a>
+                Current: <a href={resolveAsset(noteForm.thumbnailUrl)} target="_blank" rel="noopener noreferrer" style={{ color: "#E8C468" }}>view image</a>
                 {editingNote && <span> (select a new file to replace)</span>}
               </div>
             )}
