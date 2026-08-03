@@ -5,7 +5,7 @@ import { checkMyPurchase } from "../api/bundle";
 import { downloadNote } from "../utils/download";
 
 const STEPS = [
-  { num: "01", title: "Pay ₹39", body: "Secure one-time checkout. No account needed to start." },
+  { num: "01", title: "Pay ₹22", body: "Secure one-time checkout. No account needed to start." },
   { num: "02", title: "Dashboard unlocks", body: "Your access activates immediately with the full bundle." },
   { num: "03", title: "Download anytime", body: "Come back whenever — new PDFs appear automatically." },
 ];
@@ -13,7 +13,7 @@ const STEPS = [
 const FAQS = [
   { q: "Do I get new PDFs added later, for free?", a: "Yes — the bundle includes every future PDF at no extra cost. Once you're in, you're in for good." },
   { q: "Where do I download the PDFs?", a: "From your dashboard, right after payment. It stays available whenever you need to redownload." },
-  { q: "Is this a subscription?", a: "No — it's a single ₹39 payment for lifetime access. No renewals, no hidden charges." },
+  { q: "Is this a subscription?", a: "No — it's a single ₹22 payment for lifetime access. No renewals, no hidden charges." },
 ];
 
 const FAN_ANGLES = [-22, -13, -4, 5, 14, 23];
@@ -806,7 +806,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           </div>
           {!isLoggedIn && (
             <button className="nav-cta" onClick={scrollToBuy} style={{ display: "none" }}>
-              Get Access — ₹39
+              Get Access — ₹22
             </button>
           )}
         </div>
@@ -891,11 +891,11 @@ export default function LandingPage({ user, setUser, onNavigate }) {
               </p>
               <div className="hero-actions">
                 <button className="btn-buy" onClick={scrollToBuy}>
-                  Unlock the bundle — ₹39 <span className="arrow">→</span>
+                  Unlock the bundle — ₹22 <span className="arrow">→</span>
                 </button>
                 <div className="price-tag">
                   <span className="old">₹499</span>
-                  <span className="new">₹39 today</span>
+                  <span className="new">₹22 today</span>
                 </div>
               </div>
               <div className="terminal reveal in" ref={termRef}>
@@ -915,7 +915,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                     → access: <span className="y">lifetime</span> · updates: <span className="y">included forever</span>
                   </div>
                   <div className={`term-line ${lineVisible[3] ? "show" : ""}`}>
-                    → price: <span className="y">₹39</span> <span className="cursor"></span>
+                    → price: <span className="y">₹22</span> <span className="cursor"></span>
                   </div>
                 </div>
               </div>
@@ -970,7 +970,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                   <div>
                     <div className="section-eyebrow">One-time payment</div>
                     <div className="price-old">₹499</div>
-                    <div className="price-big">₹39</div>
+                    <div className="price-big">₹22</div>
                     <ul className="feature-list">
                       <li><span className="check">✓</span> Every current PDF, unlocked instantly</li>
                       <li><span className="check">✓</span> Every future PDF, at no extra cost</li>
@@ -988,7 +988,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                       style={{ width: "100%", justifyContent: "center", textDecoration: "none", border: "none" }}
                       onClick={() => isLoggedIn ? onNavigate("dashboard") : openAuthModal("login")}
                     >
-                      Buy Now — ₹39 <span className="arrow">→</span>
+                      Buy Now — ₹22 <span className="arrow">→</span>
                     </button>
                   </div>
                 </div>

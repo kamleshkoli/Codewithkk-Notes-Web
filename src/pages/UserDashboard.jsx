@@ -64,7 +64,7 @@ export default function UserDashboard({ user, onBack }) {
   const handlePayment = async () => {
     setPaying(true);
     try {
-      const res = await createOrder(39);
+      const res = await createOrder(22);
       const { orderId, amount, currency, key } = res.data;
 
       const loaded = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
@@ -88,7 +88,7 @@ export default function UserDashboard({ user, onBack }) {
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
               userId: user.userId,
-              amount: 39,
+              amount: 22,
             });
             alert("Payment successful! You now have lifetime access.");
             purchasedRef.current = true;
@@ -161,7 +161,7 @@ export default function UserDashboard({ user, onBack }) {
             }}>
               <div style={{
                 fontFamily: "'Kalam', cursive", fontSize: 42, color: "#E8C468", marginBottom: 4
-              }}>₹39</div>
+              }}>₹22</div>
               <div style={{ fontSize: 13, color: "#A9BBAF", marginBottom: 20 }}>
                 Lifetime access · {activeNotes.length} PDFs available
               </div>
@@ -172,7 +172,7 @@ export default function UserDashboard({ user, onBack }) {
                   fontWeight: 700, fontSize: 15, border: "none", cursor: paying ? "not-allowed" : "pointer",
                   opacity: paying ? 0.7 : 1
                 }}>
-                {paying ? "Processing..." : "Pay Now — ₹39"}
+                {paying ? "Processing..." : "Pay Now — ₹22"}
               </button>
             </div>
           )}
