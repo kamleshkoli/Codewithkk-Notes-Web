@@ -52,6 +52,60 @@ function Reveal({ children, className = "", as: Tag = "div", ...rest }) {
   );
 }
 
+function CountUp({ end, duration = 1600, suffix = "", decimals = 0 }) {
+  const ref = useRef(null);
+  const [started, setStarted] = useState(false);
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setStarted(true);
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!started) return;
+    let raf;
+    const startTime = performance.now();
+    const tick = (now) => {
+      const p = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setValue(end * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [started, end, duration]);
+
+  const formatted =
+    decimals > 0
+      ? value.toFixed(decimals)
+      : Math.round(value).toLocaleString("en-IN");
+
+  return <span ref={ref}>{formatted}{suffix}</span>;
+}
+
+const REVIEWS = [
+  { name: "Rahul Sharma", role: "Java Developer · Pune", quote: "Bought it for ₹22 and it covered everything I got asked in my SDE-1 interviews. The Spring Boot notes alone are worth it." },
+  { name: "Priya Patel", role: "CS Student · Ahmedabad", quote: "I was about to buy a ₹5000 course — these notes cover the same core topics. Clean, to the point, zero fluff." },
+  { name: "Aman Verma", role: "Backend Developer · Delhi", quote: "System Design + SQL + Postman in one place. Saved me hours of Googling. Downloads from the dashboard work great." },
+  { name: "Sneha Kulkarni", role: "SDE Intern · Bengaluru", quote: "The 'Most Asked Interview Questions' PDF is gold. These notes were a big part of my internship prep." },
+  { name: "Vikram Singh", role: "Placement Aspirant · Lucknow", quote: "One-time payment, lifetime access, and new PDFs keep appearing. Best ₹22 I've spent on my career." },
+  { name: "Neha Gupta", role: "Full Stack Developer · Hyderabad", quote: "Recommended it to my whole college batch. The Logic + Java + Spring roadmap is perfect for beginners." },
+];
+
 const CHECKOUT_URL = import.meta.env.VITE_CHECKOUT_URL || null;
 
 export default function LandingPage({ user, setUser, onNavigate }) {
@@ -502,6 +556,44 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         }
         .kkn-root .faq-item.open .faq-a{max-height:200px;padding-top:14px;}
 
+        .kkn-root .stat-band{
+          display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+          background:var(--surface);border:1px solid var(--border);border-radius:20px;
+          padding:40px 32px;margin-top:48px;
+        }
+        .kkn-root .stat{text-align:center;}
+        .kkn-root .stat-num{
+          font-family:var(--font-mono);font-weight:800;
+          font-size:clamp(26px, 3.4vw, 40px);color:var(--accent);line-height:1;
+        }
+        .kkn-root .stat-label{
+          font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim);
+          text-transform:uppercase;letter-spacing:0.09em;margin-top:10px;
+        }
+
+        .kkn-root .review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+        .kkn-root .review-card{
+          background:var(--surface);border:1px solid var(--border);border-radius:14px;
+          padding:24px;display:flex;flex-direction:column;
+          transition:border-color .2s, transform .2s;
+        }
+        .kkn-root .review-card:hover{border-color:var(--accent-dim);transform:translateY(-3px);}
+        .kkn-root .review-stars{color:var(--accent);font-size:13px;letter-spacing:3px;margin-bottom:12px;}
+        .kkn-root .review-quote{
+          color:var(--text-dim);font-size:14px;line-height:1.65;margin-bottom:20px;flex:1;
+        }
+        .kkn-root .review-author{
+          display:flex;align-items:center;gap:12px;
+          border-top:1px solid var(--border);padding-top:16px;
+        }
+        .kkn-root .review-avatar{
+          width:38px;height:38px;border-radius:50%;background:var(--accent-dim);color:var(--accent);
+          display:flex;align-items:center;justify-content:center;
+          font-family:var(--font-mono);font-weight:700;font-size:14px;flex-shrink:0;
+        }
+        .kkn-root .review-name{font-family:var(--font-mono);font-weight:700;font-size:13.5px;color:var(--text);}
+        .kkn-root .review-role{font-size:12px;color:var(--text-dim);margin-top:2px;}
+
         .kkn-root footer{border-top:1px solid var(--border);padding:40px 0;}
         .kkn-root footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
         .kkn-root footer .fmark{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);}
@@ -591,10 +683,15 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         }
         .kkn-dashboard .note-card .nlink:hover{text-decoration:underline;}
 
+        @media (max-width:900px){
+          .kkn-root .review-grid{grid-template-columns:1fr 1fr;}
+        }
         @media (max-width:760px){
           .kkn-root .price-grid{grid-template-columns:1fr;}
           .kkn-root .steps{grid-template-columns:1fr;}
           .kkn-root .price-panel{border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:32px;}
+          .kkn-root .review-grid{grid-template-columns:1fr;}
+          .kkn-root .stat-band{grid-template-columns:1fr 1fr;gap:22px 16px;padding:28px 16px;margin-top:32px;border-radius:16px;}
         }
         @media (max-width:680px){
           .kkn-root .wrap{padding:0 18px;}
@@ -919,6 +1016,24 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                   </div>
                 </div>
               </div>
+              <div className="stat-band reveal in">
+                <div className="stat">
+                  <div className="stat-num"><CountUp end={2000} suffix="+" /></div>
+                  <div className="stat-label">Registered Users</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-num"><CountUp end={500} suffix="+" /></div>
+                  <div className="stat-label">PDFs Downloaded</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-num"><CountUp end={4.9} decimals={1} suffix="★" /></div>
+                  <div className="stat-label">Average Rating</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-num"><CountUp end={100} suffix="%" /></div>
+                  <div className="stat-label">Happy Learners</div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -1008,6 +1123,33 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                     <div className="num">{step.num}</div>
                     <h3>{step.title}</h3>
                     <p>{step.body}</p>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="section" id="reviews">
+            <div className="wrap">
+              <Reveal className="section-head">
+                <div className="section-eyebrow">Wall of love</div>
+                <div className="section-title">Learners who unlocked it.</div>
+                <p className="section-sub">
+                  Real people, real interviews — this is why the bundle keeps selling.
+                </p>
+              </Reveal>
+              <div className="review-grid">
+                {REVIEWS.map((r) => (
+                  <Reveal className="review-card" key={r.name}>
+                    <div className="review-stars">★★★★★</div>
+                    <p className="review-quote">"{r.quote}"</p>
+                    <div className="review-author">
+                      <span className="review-avatar">{r.name[0]}</span>
+                      <div>
+                        <div className="review-name">{r.name}</div>
+                        <div className="review-role">{r.role}</div>
+                      </div>
+                    </div>
                   </Reveal>
                 ))}
               </div>
