@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getStats, getAllUsers, updateUser, deleteUser, getAllPayments, adminCreateNote, adminUpdateNote, adminDeleteNote, getSubscriptions, grantAccess, revokeAccess } from "../api/admin";
-import { getAllNotes } from "../api/notes";
+import { getStats, getAllUsers, updateUser, deleteUser, getAllPayments, adminGetAllNotes, adminCreateNote, adminUpdateNote, adminDeleteNote, getSubscriptions, grantAccess, revokeAccess } from "../api/admin";
 import { uploadPdf, uploadImage } from "../api/upload";
 import { downloadNote } from "../utils/download";
 
@@ -100,7 +99,7 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const loadStats = async () => { try { const r = await getStats(); setStats(r.data); } catch {} };
   const loadUsers = async () => { try { const r = await getAllUsers(); setUsers(r.data); } catch {} };
-  const loadNotes = async () => { try { const r = await getAllNotes(); setNotes(r.data); } catch {} };
+  const loadNotes = async () => { try { const r = await adminGetAllNotes(); setNotes(r.data); } catch {} };
   const loadPayments = async () => { try { const r = await getAllPayments(); setPayments(r.data); } catch {} };
   const loadSubscriptions = async () => { try { const r = await getSubscriptions(); setSubscriptions(r.data); } catch {} };
 
@@ -158,7 +157,11 @@ export default function AdminDashboard({ user, onLogout }) {
       setNoteForm({ title: "", description: "", pdfUrl: "", thumbnailUrl: "", price: "", active: true });
       loadNotes();
     } catch (err) {
-      alert("Failed to save note");
+      const detail = err.response?.data?.message || err.response?.data?.error
+        || (typeof err.response?.data === "string" ? err.response.data : "")
+        || err.message || "Unknown error";
+      alert(`Failed to save note: ${detail}`);
+      console.error("Save note error:", err);
     }
     setUploading(false);
   };

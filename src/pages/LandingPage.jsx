@@ -291,14 +291,21 @@ export default function LandingPage({ user, setUser, onNavigate }) {
         setAuthMsg(res.data);
         if (res.data === "Registration Successful") {
           setAuthMode("login");
-          setAuthForm({ name: "", email: "", password: "" });
+          setAuthForm({ name: "", email: authForm.email, password: "" });
         }
         if (modalRef.current) modalRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
-      const msg = typeof err.response?.data === "string"
-        ? err.response.data
-        : err.response?.data?.message || err.response?.data?.error || "Something went wrong. Please try again.";
+      let msg = "Something went wrong. Please try again.";
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (typeof data === "string") {
+          msg = data;
+        } else if (typeof data === "object") {
+          const values = Object.values(data).filter(Boolean);
+          msg = values.length ? values.join(", ") : msg;
+        }
+      }
       setAuthMsg(msg);
       if (modalRef.current) modalRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -941,8 +948,8 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                   )}
                   <div className="nttl">{note.title}</div>
                   <div className="ndesc">{note.description}</div>
-                  {note.pdfUrl ? (
-                    <button className="nlink" onClick={() => downloadNote({ ...note, pdfUrl: resolveAsset(note.pdfUrl) })} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                  {note.hasPdf ? (
+                    <button className="nlink" onClick={() => downloadNote(note)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                       Download PDF →
                     </button>
                   ) : (
@@ -1080,7 +1087,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                     )}
                     <div className="body">
                       <div className="demo-title">{note.title}</div>
-                      <div className="demo-tag">{note.pdfUrl ? "PDF Ready" : "Coming soon"}</div>
+                      <div className="demo-tag">{note.hasPdf ? "PDF Ready" : "Coming soon"}</div>
                     </div>
                   </Reveal>
                 ))}

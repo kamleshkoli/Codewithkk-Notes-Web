@@ -12,6 +12,10 @@ export const deleteUser = (id) => client.delete(`/api/admin/users/${id}`);
 
 export const getAllPayments = () => client.get("/api/admin/payments");
 
+// Admin-only listing. Unlike the public /api/notes this includes pdfUrl, which
+// the storefront never receives.
+export const adminGetAllNotes = () => client.get("/api/admin/notes");
+
 export const adminCreateNote = (note) => client.post("/api/admin/notes", note);
 
 export const adminUpdateNote = (id, note) => client.put(`/api/admin/notes/${id}`, note);

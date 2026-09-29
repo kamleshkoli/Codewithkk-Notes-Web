@@ -46,7 +46,6 @@ export default function UserDashboard({ user, onBack }) {
         (Array.isArray(notesRes.data) ? notesRes.data : []).map((n) => ({
           ...n,
           thumbnailUrl: resolveAsset(n.thumbnailUrl),
-          pdfUrl: resolveAsset(n.pdfUrl),
         }))
       );
       if (user.userId) {
@@ -93,8 +92,6 @@ export default function UserDashboard({ user, onBack }) {
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
-              userId: user.userId,
-              amount: bundle.price,
             });
             alert("Payment successful! You now have lifetime access.");
             purchasedRef.current = true;
@@ -244,7 +241,7 @@ export default function UserDashboard({ user, onBack }) {
                   <div style={{ color: "#6B6B6B", fontSize: 13, lineHeight: 1.5, marginBottom: 12 }}>
                     {note.description}
                   </div>
-                  {hasPurchased && note.pdfUrl ? (
+                  {hasPurchased && note.hasPdf ? (
                     <button onClick={() => downloadNote(note)} style={{
                       fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
                       color: "#D97706", background: "transparent", border: "none",
