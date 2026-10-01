@@ -153,6 +153,7 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [notes, setNotes] = useState([]);
   const [notesLoading, setNotesLoading] = useState(true);
+  const [notesError, setNotesError] = useState("");
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [authForm, setAuthForm] = useState({ name: "", email: "", password: "" });
@@ -166,11 +167,17 @@ export default function LandingPage({ user, setUser, onNavigate }) {
   const buyRef = useRef(null);
   const modalRef = useRef(null);
 
+  // The catalogue is what makes the page look alive, so a failed request is
+  // surfaced instead of silently leaving an empty list that reads as "this site
+  // has no products". Render's free tier also sleeps, so a cold start can hold
+  // this request open for a while - that is a load, not a failure.
   useEffect(() => {
+    let cancelled = false;
     getAllNotes()
-      .then((res) => setNotes(Array.isArray(res.data) ? res.data : []))
-      .catch(() => {})
-      .finally(() => setNotesLoading(false));
+      .then((res) => { if (!cancelled) setNotes(Array.isArray(res.data) ? res.data : []); })
+      .catch(() => { if (!cancelled) setNotesError("Couldn't reach the server. Please refresh to try again."); })
+      .finally(() => { if (!cancelled) setNotesLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -957,7 +964,13 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                   )}
                 </div>
               ))}
-              {notes.length === 0 && (
+              {notes.length === 0 && notesLoading && (
+                <div style={{ color: "var(--text-dim)", fontSize: 14 }}>Loading notes…</div>
+              )}
+              {notes.length === 0 && !notesLoading && notesError && (
+                <div style={{ color: "#DC2626", fontSize: 14 }}>{notesError}</div>
+              )}
+              {notes.length === 0 && !notesLoading && !notesError && (
                 <div style={{ color: "var(--text-dim)", fontSize: 14 }}>No notes available yet.</div>
               )}
             </div>
@@ -1070,7 +1083,9 @@ export default function LandingPage({ user, setUser, onNavigate }) {
           <section className="section" id="bundle">
             <div className="wrap">
               <Reveal className="section-head">
-                <div className="section-eyebrow">What's inside / {Array.isArray(notes) ? notes.length : 0} PDFs</div>
+                <div className="section-eyebrow">
+                  What's inside / {notesLoading ? "…" : notes.length} PDFs
+                </div>
                 <div className="section-title">A peek at the notes.</div>
                 <p className="section-sub">
                   Every PDF is written and formatted for real interview prep and quick revision — not filler.
@@ -1091,7 +1106,13 @@ export default function LandingPage({ user, setUser, onNavigate }) {
                     </div>
                   </Reveal>
                 ))}
-                {(!Array.isArray(notes) || notes.length === 0) && (
+                {notesLoading && notes.length === 0 && (
+                  <div style={{ color: "var(--text-dim)", fontSize: 14 }}>Loading notes…</div>
+                )}
+                {!notesLoading && notesError && (
+                  <div style={{ color: "#DC2626", fontSize: 14 }}>{notesError}</div>
+                )}
+                {!notesLoading && !notesError && notes.filter((n) => n.active).length === 0 && (
                   <div style={{ color: "var(--text-dim)", fontSize: 14 }}>No notes available yet.</div>
                 )}
               </div>

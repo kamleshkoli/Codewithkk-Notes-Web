@@ -101,16 +101,38 @@ export default function AdminDashboard({ user, onLogout }) {
   const loadUsers = async () => { try { const r = await getAllUsers(); setUsers(r.data); } catch {} };
   const loadNotes = async () => { try { const r = await adminGetAllNotes(); setNotes(r.data); } catch {} };
   const loadPayments = async () => { try { const r = await getAllPayments(); setPayments(r.data); } catch {} };
-  const loadSubscriptions = async () => { try { const r = await getSubscriptions(); setSubscriptions(r.data); } catch {} };
+  const loadSubscriptions = async () => {
+    try { const r = await getSubscriptions(); setSubscriptions(Array.isArray(r.data) ? r.data : []); }
+    catch (e) { setSubscriptions([]); setSubscriptionsError(e?.response?.data?.error || "Couldn't load access list."); }
+  };
+
+  // Errors are shown in the page, not an alert, so the admin can read why a grant
+  // failed (unknown email, network) instead of only "Failed to grant access".
+  const [accessMsg, setAccessMsg] = useState("");
+  const [subscriptionsError, setSubscriptionsError] = useState("");
 
   const handleGrantAccess = async (email) => {
     if (!confirm(`Grant premium access to ${email}?`)) return;
-    try { await grantAccess(email); loadSubscriptions(); } catch { alert("Failed to grant access"); }
+    setAccessMsg("");
+    try {
+      await grantAccess(email);
+      setAccessMsg(`Granted premium access to ${email}.`);
+      loadSubscriptions();
+    } catch (e) {
+      setAccessMsg(e?.response?.data?.error || "Failed to grant access.");
+    }
   };
 
   const handleRevokeAccess = async (userId) => {
     if (!confirm("Revoke premium access?")) return;
-    try { await revokeAccess(userId); loadSubscriptions(); } catch { alert("Failed to revoke access"); }
+    setAccessMsg("");
+    try {
+      await revokeAccess(userId);
+      setAccessMsg("Access revoked.");
+      loadSubscriptions();
+    } catch (e) {
+      setAccessMsg(e?.response?.data?.error || "Failed to revoke access.");
+    }
   };
 
   const handleDeleteUser = async (id) => {
@@ -384,6 +406,19 @@ export default function AdminDashboard({ user, onLogout }) {
           setGrantEmail("");
         }}>Grant Access</button>
       </div>
+      {accessMsg && (
+        <div style={{
+          marginBottom: 16, padding: "10px 14px", borderRadius: 8, fontSize: 13,
+          background: accessMsg.includes("Granted") || accessMsg.includes("revoked") ? "rgba(39,201,63,0.15)" : "rgba(255,95,86,0.15)",
+          color: accessMsg.includes("Granted") || accessMsg.includes("revoked") ? "#27c93f" : "#ff5f56",
+        }}>{accessMsg}</div>
+      )}
+      {subscriptionsError && (
+        <div style={{ marginBottom: 16, fontSize: 13, color: "#ff5f56" }}>{subscriptionsError}</div>
+      )}
+      {subscriptions.length === 0 && !subscriptionsError && (
+        <div style={{ marginBottom: 16, fontSize: 13, color: "#A9BBAF" }}>No users yet.</div>
+      )}
       <table style={styles.table}>
         <thead><tr>
           <th style={styles.th}>Name</th>
